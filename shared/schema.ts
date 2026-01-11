@@ -1,18 +1,48 @@
-import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+// === TABLE DEFINITIONS ===
+
+export const signals = pgTable("signals", {
+  id: serial("id").primaryKey(),
+  pair: text("pair").notNull(),
+  action: text("action").notNull(), // BUY, SELL, CALL, PUT
+  confidence: integer("confidence").notNull(),
+  startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time").notNull(),
+  status: text("status").notNull().default("active"), // active, completed
+  analysis: text("analysis"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertSignalSchema = createInsertSchema(signals).omit({ 
+  id: true, 
+  createdAt: true,
+  status: true 
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+// === EXPLICIT API CONTRACT TYPES ===
+
+export type Signal = typeof signals.$inferSelect;
+export type InsertSignal = z.infer<typeof insertSignalSchema>;
+
+export type CreateSignalRequest = InsertSignal;
+export type UpdateSignalRequest = Partial<InsertSignal>;
+
+// Response types
+export type SignalResponse = Signal;
+export type SignalsListResponse = Signal[];
+
+// AI Analysis Request
+export interface AnalysisRequest {
+  pair: string;
+}
+
+// AI Analysis Response
+export interface AnalysisResponse {
+  pair: string;
+  action: "BUY" | "SELL";
+  confidence: number;
+  reasoning: string;
+}
