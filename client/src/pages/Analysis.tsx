@@ -58,30 +58,24 @@ export default function Analysis() {
               <CardDescription>Real-time decision making process</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="flex items-start gap-4 p-4 rounded-lg bg-muted/30 border border-border/50">
                   <div className="p-2 bg-primary/10 rounded-md">
                     <BrainCircuit className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-semibold text-sm">Pattern Recognition: Double Bottom</h4>
-                      <span className="text-xs font-mono text-muted-foreground">10:4{i} AM</span>
+                      <h4 className="font-semibold text-sm">AI Market Intelligence Log #{i}</h4>
+                      <span className="text-xs font-mono text-muted-foreground">{10 + i}:4{i} AM</span>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Detected strong support level at 154.20 on AUD/JPY. RSI divergence suggests upward momentum. 
-                      Volume profile confirms accumulation phase. Preparing BUY signal for next M5 candle.
+                      Deep analysis of current market structure and liquidity pools. 
+                      Detected significant order flow imbalance and volume clusters. 
+                      Predictive model suggests high probability momentum continuation.
                     </p>
                   </div>
                 </div>
               ))}
-              
-              <div className="flex items-center justify-center p-8 border-t border-border/50 mt-4">
-                <div className="flex flex-col items-center gap-3 text-muted-foreground">
-                  <Lock className="w-8 h-8 opacity-50" />
-                  <p className="text-sm">Upgrade to Pro to see full analysis depth</p>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
