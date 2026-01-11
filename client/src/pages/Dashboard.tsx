@@ -111,7 +111,7 @@ export default function Dashboard() {
             {/* TradingView Widget Wrapper */}
             <div className="absolute inset-0">
                <iframe
-                 src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d87&symbol=${selectedPair}&interval=5&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=Dark&style=1&timezone=Etc%2FUTC`}
+                 src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_76d87&symbol=${selectedPair}&interval=5&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=["RSI@tv-basicstudies","MASimple@tv-basicstudies","MACD@tv-basicstudies"]&theme=Dark&style=1&timezone=Etc%2FUTC`}
                  style={{ width: "100%", height: "100%", border: "none" }}
                  title="TradingView Chart"
                />
