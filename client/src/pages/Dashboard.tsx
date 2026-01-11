@@ -36,7 +36,31 @@ export default function Dashboard() {
 
   const highImpactNews = newsEvents?.filter(n => n.impact === "High") || [];
 
-  // ... (existing logic)
+  // Sort signals by start time descending
+  const sortedSignals = signals?.sort((a, b) => 
+    new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+  ) || [];
+
+  const activeSignal = sortedSignals.find(s => {
+    const now = new Date();
+    const end = new Date(s.endTime);
+    return now <= end;
+  });
+
+  const signalHistory = sortedSignals.filter(s => s.id !== activeSignal?.id);
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background text-destructive">
+        <div className="flex flex-col items-center gap-4">
+          <AlertCircle className="h-12 w-12" />
+          <h2 className="text-xl font-bold">Failed to load dashboard</h2>
+          <p className="text-muted-foreground">{error.message}</p>
+          <Button onClick={() => refetch()} variant="outline">Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
