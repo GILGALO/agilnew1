@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, LineChart, History, Settings, Zap, Menu, X } from "lucide-react";
+import { LayoutDashboard, LineChart, History, Settings, Zap, Menu, X, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Analysis", href: "/analysis", icon: LineChart },
+  { name: "Trading Schedule", href: "/schedule", icon: CalendarClock },
   { name: "History", href: "/history", icon: History },
   { name: "Settings", href: "/settings", icon: Settings },
 ];

@@ -12,11 +12,16 @@ const openai = new OpenAI({
 });
 
 function getCurrentSession() {
-  const hour = new Date().getUTCHours();
-  if (hour >= 0 && hour < 9) return "Asian";
-  if (hour >= 8 && hour < 17) return "London";
-  if (hour >= 13 && hour < 22) return "New York";
-  return "Gap";
+  const now = new Date();
+  // Get EAT time (UTC+3)
+  const eatOffset = 3;
+  const eatHour = (now.getUTCHours() + eatOffset) % 24;
+
+  if (eatHour >= 7 && eatHour < 12) return "Asian";
+  if (eatHour >= 12 && eatHour < 17) return "London";
+  if (eatHour >= 17 && eatHour < 18) return "Lunch Break";
+  if (eatHour >= 18 && eatHour < 23) return "New York";
+  return "Night Break";
 }
 
 export async function registerRoutes(

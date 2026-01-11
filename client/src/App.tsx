@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import Analysis from "@/pages/Analysis";
 import History from "@/pages/History";
 import Settings from "@/pages/Settings";
+import Schedule from "@/pages/Schedule";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/analysis" component={Analysis} />
       <Route path="/history" component={History} />
       <Route path="/settings" component={Settings} />
+      <Route path="/schedule" component={Schedule} />
       <Route component={NotFound} />
     </Switch>
   );
