@@ -16,11 +16,16 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const { data: signals, isLoading, error, refetch } = useSignals();
+  const { data: sessionData } = useQuery<{ session: string }>({
+    queryKey: ["/api/session"],
+    refetchInterval: 60000,
+  });
   const [autoMode, setAutoMode] = useState(false);
   const [selectedPair, setSelectedPair] = useState("AUDJPY");
 
@@ -58,7 +63,15 @@ export default function Dashboard() {
         <header className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">Market Overview</h1>
-            <p className="text-muted-foreground mt-1">Real-time M5 AI Trading Signals</p>
+            <div className="flex items-center gap-2 text-muted-foreground mt-1">
+              <p>Real-time M5 AI Trading Signals</p>
+              {sessionData && (
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium border border-primary/20">
+                  <Clock className="w-3 h-3" />
+                  <span>{sessionData.session} Session</span>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center gap-4">
