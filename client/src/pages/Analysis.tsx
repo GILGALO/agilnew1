@@ -6,7 +6,7 @@ export default function Analysis() {
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar />
-      <main className="flex-1 ml-64 p-8">
+      <main className="flex-1 ml-0 lg:ml-64 p-4 md:p-8">
         <header className="mb-8">
           <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">Market Intelligence</h1>
           <p className="text-muted-foreground mt-1">Deep dive AI analysis on market trends</p>

@@ -59,8 +59,8 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar />
       
-      <main className="flex-1 ml-64 p-8">
-        <header className="flex justify-between items-center mb-8">
+      <main className="flex-1 ml-0 lg:ml-64 p-4 md:p-8">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">Market Overview</h1>
             <div className="flex items-center gap-2 text-muted-foreground mt-1">

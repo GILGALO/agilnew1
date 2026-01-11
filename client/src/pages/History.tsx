@@ -14,7 +14,7 @@ export default function History() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8 ml-0 lg:ml-64">
         <h1 className="text-3xl font-bold mb-8">Trade History</h1>
         
         <Card>
