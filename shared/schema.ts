@@ -16,16 +16,44 @@ export const signals = pgTable("signals", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const tradeHistory = pgTable("trade_history", {
+  id: serial("id").primaryKey(),
+  signalId: integer("signal_id").references(() => signals.id),
+  pair: text("pair").notNull(),
+  action: text("action").notNull(),
+  entryPrice: text("entry_price"),
+  exitPrice: text("exit_price"),
+  result: text("result"), // win, loss
+  confidence: integer("confidence").notNull(),
+  session: text("session").notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey(),
+  telegramToken: text("telegram_token"),
+  telegramGroupId: text("telegram_group_id"),
+  minConfidence: integer("min_confidence").default(90).notNull(),
+  autoTrading: boolean("auto_trading").default(false).notNull(),
+});
+
 export const insertSignalSchema = createInsertSchema(signals).omit({ 
   id: true, 
   createdAt: true,
   status: true 
 });
 
+export const insertTradeSchema = createInsertSchema(tradeHistory).omit({ id: true, timestamp: true });
+export const insertSettingsSchema = createInsertSchema(settings).omit({ id: true });
+
 // === EXPLICIT API CONTRACT TYPES ===
 
 export type Signal = typeof signals.$inferSelect;
 export type InsertSignal = z.infer<typeof insertSignalSchema>;
+export type Trade = typeof tradeHistory.$inferSelect;
+export type InsertTrade = z.infer<typeof insertTradeSchema>;
+export type Settings = typeof settings.$inferSelect;
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;
 
 export type CreateSignalRequest = InsertSignal;
 export type UpdateSignalRequest = Partial<InsertSignal>;
