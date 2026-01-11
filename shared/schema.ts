@@ -35,6 +35,16 @@ export const settings = pgTable("settings", {
   telegramGroupId: text("telegram_group_id"),
   minConfidence: integer("min_confidence").default(90).notNull(),
   autoTrading: boolean("auto_trading").default(false).notNull(),
+  avoidHighImpactNews: boolean("avoid_high_impact_news").default(true).notNull(),
+});
+
+export const newsEvents = pgTable("news_events", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  impact: text("impact").notNull(), // High, Medium, Low
+  currency: text("currency").notNull(),
+  timestamp: timestamp("timestamp").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertSignalSchema = createInsertSchema(signals).omit({ 
@@ -45,6 +55,7 @@ export const insertSignalSchema = createInsertSchema(signals).omit({
 
 export const insertTradeSchema = createInsertSchema(tradeHistory).omit({ id: true, timestamp: true });
 export const insertSettingsSchema = createInsertSchema(settings).omit({ id: true });
+export const insertNewsSchema = createInsertSchema(newsEvents).omit({ id: true, createdAt: true });
 
 // === EXPLICIT API CONTRACT TYPES ===
 
@@ -54,6 +65,8 @@ export type Trade = typeof tradeHistory.$inferSelect;
 export type InsertTrade = z.infer<typeof insertTradeSchema>;
 export type Settings = typeof settings.$inferSelect;
 export type InsertSettings = z.infer<typeof insertSettingsSchema>;
+export type NewsEvent = typeof newsEvents.$inferSelect;
+export type InsertNewsEvent = z.infer<typeof insertNewsSchema>;
 
 export type CreateSignalRequest = InsertSignal;
 export type UpdateSignalRequest = Partial<InsertSignal>;

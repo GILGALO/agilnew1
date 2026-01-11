@@ -3,14 +3,17 @@ import {
   signals,
   tradeHistory,
   settings,
+  newsEvents,
   type Signal,
   type InsertSignal,
   type Trade,
   type InsertTrade,
   type Settings,
   type InsertSettings,
+  type NewsEvent,
+  type InsertNewsEvent,
 } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, gte, lte, and } from "drizzle-orm";
 
 export interface IStorage {
   getSignals(): Promise<Signal[]>;
@@ -20,6 +23,8 @@ export interface IStorage {
   createTrade(trade: InsertTrade): Promise<Trade>;
   getSettings(): Promise<Settings>;
   updateSettings(settings: Partial<InsertSettings>): Promise<Settings>;
+  getNewsEvents(currency?: string): Promise<NewsEvent[]>;
+  createNewsEvent(news: InsertNewsEvent): Promise<NewsEvent>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -62,6 +67,34 @@ export class DatabaseStorage implements IStorage {
     const s = await this.getSettings();
     const [updated] = await db.update(settings).set(update).where(eq(settings.id, s.id)).returning();
     return updated;
+  }
+
+  async getNewsEvents(currency?: string): Promise<NewsEvent[]> {
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const twoHoursFuture = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+    
+    if (currency) {
+      return await db.select().from(newsEvents)
+        .where(and(
+          eq(newsEvents.currency, currency),
+          gte(newsEvents.timestamp, oneHourAgo),
+          lte(newsEvents.timestamp, twoHoursFuture)
+        ))
+        .orderBy(newsEvents.timestamp);
+    }
+    
+    return await db.select().from(newsEvents)
+      .where(and(
+        gte(newsEvents.timestamp, oneHourAgo),
+        lte(newsEvents.timestamp, twoHoursFuture)
+      ))
+      .orderBy(newsEvents.timestamp);
+  }
+
+  async createNewsEvent(news: InsertNewsEvent): Promise<NewsEvent> {
+    const [event] = await db.insert(newsEvents).values(news).returning();
+    return event;
   }
 }
 

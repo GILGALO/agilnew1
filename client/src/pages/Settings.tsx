@@ -112,6 +112,19 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
+                      <Label className="text-sm font-semibold">Avoid High Impact News</Label>
+                      <p className="text-xs text-muted-foreground">Automatically block signals during high impact news events</p>
+                    </div>
+                    <Switch 
+                      checked={settings.avoidHighImpactNews}
+                      onCheckedChange={(checked) => mutation.mutate({ avoidHighImpactNews: checked })}
+                    />
+                  </div>
+
+                  <Separator className="opacity-50" />
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
                       <Label className="text-sm font-semibold">Minimum Confidence Threshold</Label>
                       <p className="text-xs text-muted-foreground">Only signals above this score will be processed</p>
                     </div>

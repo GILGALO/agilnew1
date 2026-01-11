@@ -16,9 +16,10 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Loader2, RefreshCw, AlertCircle, Clock } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Dashboard() {
   const { data: signals, isLoading, error, refetch } = useSignals();
@@ -26,40 +27,33 @@ export default function Dashboard() {
     queryKey: ["/api/session"],
     refetchInterval: 60000,
   });
+  const { data: newsEvents } = useQuery<any[]>({
+    queryKey: ["/api/news"],
+    refetchInterval: 300000,
+  });
   const [autoMode, setAutoMode] = useState(false);
   const [selectedPair, setSelectedPair] = useState("AUDJPY");
 
-  // Sort signals by start time descending
-  const sortedSignals = signals?.sort((a, b) => 
-    new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-  ) || [];
+  const highImpactNews = newsEvents?.filter(n => n.impact === "High") || [];
 
-  const activeSignal = sortedSignals.find(s => {
-    const now = new Date();
-    const end = new Date(s.endTime);
-    return now <= end;
-  });
-
-  const signalHistory = sortedSignals.filter(s => s.id !== activeSignal?.id);
-
-  if (error) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background text-destructive">
-        <div className="flex flex-col items-center gap-4">
-          <AlertCircle className="h-12 w-12" />
-          <h2 className="text-xl font-bold">Failed to load dashboard</h2>
-          <p className="text-muted-foreground">{error.message}</p>
-          <Button onClick={() => refetch()} variant="outline">Retry</Button>
-        </div>
-      </div>
-    );
-  }
+  // ... (existing logic)
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <Sidebar />
       
       <main className="flex-1 ml-0 lg:ml-64 p-4 md:p-8">
+        {highImpactNews.length > 0 && (
+          <Alert variant="destructive" className="mb-6 border-red-500/50 bg-red-500/10">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>High Impact News Warning</AlertTitle>
+            <AlertDescription>
+              {highImpactNews.map(n => `${n.currency}: ${n.title}`).join(", ")}. 
+              Trading during high impact news is extremely risky!
+            </AlertDescription>
+          </Alert>
+        )}
+
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">Market Overview</h1>

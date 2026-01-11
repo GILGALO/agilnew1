@@ -48,11 +48,30 @@ export async function registerRoutes(
     res.json(signals);
   });
 
+  app.get("/api/news", async (req, res) => {
+    const news = await storage.getNewsEvents();
+    res.json(news);
+  });
+
   app.post(api.signals.generate.path, async (req, res) => {
     const { pair } = req.body;
     const settings = await storage.getSettings();
+    const currency = pair.split('/')[0]; // Simple split for base currency
     
     try {
+      // Check for high impact news if enabled
+      if (settings.avoidHighImpactNews) {
+        const activeNews = await storage.getNewsEvents(currency);
+        const highImpactNews = activeNews.find(n => n.impact === "High");
+        
+        if (highImpactNews) {
+          return res.status(400).json({ 
+            message: `High impact news detected for ${currency}: ${highImpactNews.title}. Trading suspended.`,
+            isNewsBlocked: true 
+          });
+        }
+      }
+
       const marketContext = `
         Current ${pair} market analysis during ${getCurrentSession()} session.
         - Short term trend: Bullish
