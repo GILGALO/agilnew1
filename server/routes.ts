@@ -88,35 +88,32 @@ export async function registerRoutes(
       `;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-5",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: `You are the world's most accurate institutional forex trading AI, powered by GPT-5. 
-            YOUR SOLE PURPOSE: Achieve 98%+ precision on 5-minute (M5) binary options signals.
+            content: `You are a professional forex trading analyst.
+            Your task is to provide high-probability 5-minute (M5) binary options signals.
             
-            UNCOMPROMISING ENTRY PROTOCOL:
-            1. TRIPLE TREND CONFLUENCE: H1, M15, and M5 trends MUST align perfectly. If H1 is Bearish, you ONLY look for SELL.
-            2. INSTITUTIONAL LIQUIDITY: You MUST identify a "Stop Hunt" or Liquidity Sweep of the previous session High/Low before entry.
-            3. SMC/ICT CONCEPTS: Trade ONLY on Fair Value Gap (FVG) returns or Order Block rejections.
-            4. VOLUME ANOMALY: Look for "Smart Money" footprints—buying/selling climaxes.
-            5. RSI DIVERGENCE: Only entry on overextended RSI with clear bearish/bullish divergence.
+            STRATEGY:
+            - Focus on Price Action and Market Structure.
+            - Always align with the M15 trend.
+            - Identify key support and resistance zones.
+            - Use RSI for momentum confirmation.
             
-            CONFIDENCE SCORING:
-            - 95-100%: Institutional 'Surety' setup. Perfect confluence.
-            - 90-94%: Strong retail/institutional overlap.
-            - Below 90%: AUTO-REJECT.
-            
-            Respond with JSON only.`
+            RESPONSE FORMAT:
+            You must respond with a JSON object:
+            {
+              "action": "BUY" | "SELL" | "NO_TRADE",
+              "confidence": number (0-100),
+              "reasoning": "string"
+            }`
           },
           {
             role: "user",
-            content: `Generate a sniper entry for ${pair} in the ${getCurrentSession()} session. 
-            Context: ${marketContext}
-            Requirements: 
-            - 95%+ Confidence preferred.
-            - If Trend alignment is missing, output NO_TRADE.
-            Return JSON: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
+            content: `Analyze ${pair} for the next 5-minute candle.
+            Market Context: ${marketContext}
+            Session: ${getCurrentSession()}`
           }
         ],
         response_format: { type: "json_object" }
@@ -224,34 +221,31 @@ export async function registerRoutes(
         }
 
         const response = await openai.chat.completions.create({
-          model: "gpt-5",
+          model: "gpt-4o",
           messages: [
             {
               role: "system",
-              content: `You are the world's most accurate institutional forex trading AI, powered by GPT-5. 
-              YOUR SOLE PURPOSE: Achieve 98%+ precision on 5-minute (M5) binary options signals.
+              content: `You are a professional forex trading analyst.
+              Your task is to provide high-probability 5-minute (M5) binary options signals.
               
-              UNCOMPROMISING ENTRY PROTOCOL:
-              1. TRIPLE TREND CONFLUENCE: H1, M15, and M5 trends MUST align perfectly. If H1 is Bearish, you ONLY look for SELL.
-              2. INSTITUTIONAL LIQUIDITY: You MUST identify a "Stop Hunt" or Liquidity Sweep of the previous session High/Low before entry.
-              3. SMC/ICT CONCEPTS: Trade ONLY on Fair Value Gap (FVG) returns or Order Block rejections.
-              4. VOLUME ANOMALY: Look for "Smart Money" footprints—buying/selling climaxes.
-              5. RSI DIVERGENCE: Only entry on overextended RSI with clear bearish/bullish divergence.
+              STRATEGY:
+              - Focus on Price Action and Market Structure.
+              - Always align with the M15 trend.
+              - Identify key support and resistance zones.
+              - Use RSI for momentum confirmation.
               
-              CONFIDENCE SCORING:
-              - 95-100%: Institutional 'Surety' setup. Perfect confluence.
-              - 90-94%: Strong retail/institutional overlap.
-              - Below 90%: AUTO-REJECT.
-              
-              Respond with JSON only.`
+              RESPONSE FORMAT:
+              You must respond with a JSON object:
+              {
+                "action": "BUY" | "SELL" | "NO_TRADE",
+                "confidence": number (0-100),
+                "reasoning": "string"
+              }`
             },
             {
               role: "user",
-              content: `Generate a sniper entry for ${pair} in the ${getCurrentSession()} session.
-              Requirements: 
-              - 95%+ Confidence preferred.
-              - If Trend alignment is missing, output NO_TRADE.
-              Return JSON: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
+              content: `Analyze ${pair} for the next 5-minute candle.
+              Session: ${session}`
             }
           ],
           response_format: { type: "json_object" }
