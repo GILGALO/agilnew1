@@ -78,6 +78,37 @@ export default function SettingsPage() {
                     <p className="text-[11px] text-muted-foreground">The unique ID for your alert channel</p>
                   </div>
                 </div>
+                <div className="pt-2">
+                  <Button 
+                    variant="outline" 
+                    className="w-full sm:w-auto font-bold gap-2 hover-elevate"
+                    onClick={() => {
+                      const testMutation = {
+                        mutate: async () => {
+                          try {
+                            const res = await apiRequest("POST", "/api/test-telegram");
+                            if (res.ok) {
+                              toast({ title: "Test signal sent to Telegram" });
+                            } else {
+                              throw new Error(await res.text());
+                            }
+                          } catch (err: any) {
+                            toast({ 
+                              title: "Failed to send test signal", 
+                              description: err.message,
+                              variant: "destructive" 
+                            });
+                          }
+                        }
+                      };
+                      testMutation.mutate();
+                    }}
+                    disabled={!settings.telegramToken || !settings.telegramGroupId}
+                  >
+                    <Send className="w-4 h-4" />
+                    Send Test Signal
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 

@@ -144,6 +144,39 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/test-telegram", async (req, res) => {
+    const settings = await storage.getSettings();
+    if (!settings.telegramToken || !settings.telegramGroupId) {
+      return res.status(400).json({ message: "Telegram settings not configured" });
+    }
+
+    try {
+      const message = `🔔 *Bot Test Signal*\n\n` +
+        `Pair: TEST/USD\n` +
+        `Action: BUY\n` +
+        `Confidence: 99%\n` +
+        `Time: ${new Date().toLocaleTimeString()}\n\n` +
+        `✅ Your bot is correctly connected to this group.`;
+
+      const telegramUrl = `https://api.telegram.org/bot${settings.telegramToken}/sendMessage`;
+      const response = await fetch(telegramUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: settings.telegramGroupId,
+          text: message,
+          parse_mode: 'Markdown'
+        })
+      });
+
+      if (!response.ok) throw new Error(await response.text());
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Telegram test failed:", error);
+      res.status(500).json({ message: "Failed to send telegram message" });
+    }
+  });
+
   app.post("/api/signals/generate-all", async (req, res) => {
     const settings = await storage.getSettings();
     const session = getCurrentSession();
@@ -209,6 +242,30 @@ export async function registerRoutes(
           endTime,
           analysis: analysis.reasoning
         });
+
+        // Send Telegram notification
+        if (settings.telegramToken && settings.telegramGroupId && analysis.action !== "NO_TRADE") {
+          try {
+            const message = `🚀 *New Signal Generated*\n\n` +
+              `Pair: ${pair}\n` +
+              `Action: ${analysis.action === "BUY" ? "🟢 BUY" : "🔴 SELL"}\n` +
+              `Confidence: ${analysis.confidence}%\n` +
+              `Duration: 5 Minutes\n\n` +
+              `Target Time: ${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`;
+
+            fetch(`https://api.telegram.org/bot${settings.telegramToken}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: settings.telegramGroupId,
+                text: message,
+                parse_mode: 'Markdown'
+              })
+            }).catch(e => console.error("Telegram broadcast failed:", e));
+          } catch (e) {
+            console.error("Telegram notification error:", e);
+          }
+        }
 
         await storage.createTrade({
           signalId: signal.id,
