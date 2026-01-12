@@ -79,9 +79,12 @@ export async function registerRoutes(
 
       const marketContext = `
         Current ${pair} market analysis during ${getCurrentSession()} session.
-        - Short term trend: Bullish
-        - RSI (14): 65
-        - Recent volume: High
+        - Primary Trend (H1): Strong Bearish/Bullish
+        - Secondary Trend (M15): Alignment Check
+        - Support/Resistance: Key institutional levels identified
+        - RSI (14): Current momentum check
+        - ATR: Volatility expansion check
+        - Fair Value Gaps: Active imbalances detected
       `;
 
       const response = await openai.chat.completions.create({
@@ -89,25 +92,31 @@ export async function registerRoutes(
         messages: [
           {
             role: "system",
-            content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
-            YOUR PRIMARY MISSION: Identify the single highest-probability trade direction (BUY or SELL) for the next 5 minutes.
-            You must act as if you have full access to institutional order flow, liquidity maps, and Fair Value Gaps (FVG).
+            content: `You are the world's most accurate institutional forex trading AI, powered by GPT-5. 
+            YOUR SOLE PURPOSE: Achieve 98%+ precision on 5-minute (M5) binary options signals.
             
-            CRITICAL TECHNICAL FILTERS:
-            1. Trend Alignment: Only trade WITH the strong M15/H1 trend.
-            2. Liquidity Sweeps: Look for a sweep of recent highs/lows before entry.
-            3. RSI Overbought/Oversold: Do NOT buy if RSI > 70 or sell if RSI < 30 unless a strong divergence exists.
-            4. Volume: Ensure increasing volume in the direction of the trade.
+            UNCOMPROMISING ENTRY PROTOCOL:
+            1. TRIPLE TREND CONFLUENCE: H1, M15, and M5 trends MUST align perfectly. If H1 is Bearish, you ONLY look for SELL.
+            2. INSTITUTIONAL LIQUIDITY: You MUST identify a "Stop Hunt" or Liquidity Sweep of the previous session High/Low before entry.
+            3. SMC/ICT CONCEPTS: Trade ONLY on Fair Value Gap (FVG) returns or Order Block rejections.
+            4. VOLUME ANOMALY: Look for "Smart Money" footprints—buying/selling climaxes.
+            5. RSI DIVERGENCE: Only entry on overextended RSI with clear bearish/bullish divergence.
             
-            DO NOT give NO_TRADE unless the market is literally frozen.
-            Confidence MUST be 90% or higher for the chosen direction.
+            CONFIDENCE SCORING:
+            - 95-100%: Institutional 'Surety' setup. Perfect confluence.
+            - 90-94%: Strong retail/institutional overlap.
+            - Below 90%: AUTO-REJECT.
+            
             Respond with JSON only.`
           },
           {
             role: "user",
-            content: `Deep Analysis Required: ${pair} during ${getCurrentSession()} session.
-            Requirement: Generate an M5 institutional entry.
-            Return JSON format: { "action": "BUY/SELL", "confidence": number, "reasoning": "Institutional-grade technical justification for 90%+ confidence" }`
+            content: `Generate a sniper entry for ${pair} in the ${getCurrentSession()} session. 
+            Context: ${marketContext}
+            Requirements: 
+            - 95%+ Confidence preferred.
+            - If Trend alignment is missing, output NO_TRADE.
+            Return JSON: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
           }
         ],
         response_format: { type: "json_object" }
@@ -219,25 +228,30 @@ export async function registerRoutes(
           messages: [
             {
               role: "system",
-              content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
-              Analyze market structures for ${pair} during ${session} session with extreme precision.
-              YOUR PRIMARY MISSION: Identify the single highest-probability trade direction (BUY or SELL) for the next 5 minutes.
-              You must act as if you have full access to institutional order flow, liquidity maps, and Fair Value Gaps (FVG).
+              content: `You are the world's most accurate institutional forex trading AI, powered by GPT-5. 
+              YOUR SOLE PURPOSE: Achieve 98%+ precision on 5-minute (M5) binary options signals.
               
-              CRITICAL TECHNICAL FILTERS:
-              1. Trend Alignment: Only trade WITH the strong M15/H1 trend.
-              2. Liquidity Sweeps: Look for a sweep of recent highs/lows before entry.
-              3. RSI Overbought/Oversold: Do NOT buy if RSI > 70 or sell if RSI < 30 unless a strong divergence exists.
-              4. Volume: Ensure increasing volume in the direction of the trade.
+              UNCOMPROMISING ENTRY PROTOCOL:
+              1. TRIPLE TREND CONFLUENCE: H1, M15, and M5 trends MUST align perfectly. If H1 is Bearish, you ONLY look for SELL.
+              2. INSTITUTIONAL LIQUIDITY: You MUST identify a "Stop Hunt" or Liquidity Sweep of the previous session High/Low before entry.
+              3. SMC/ICT CONCEPTS: Trade ONLY on Fair Value Gap (FVG) returns or Order Block rejections.
+              4. VOLUME ANOMALY: Look for "Smart Money" footprints—buying/selling climaxes.
+              5. RSI DIVERGENCE: Only entry on overextended RSI with clear bearish/bullish divergence.
               
-              DO NOT give NO_TRADE unless the market is literally frozen.
-              Confidence MUST be 90% or higher for the chosen direction.
+              CONFIDENCE SCORING:
+              - 95-100%: Institutional 'Surety' setup. Perfect confluence.
+              - 90-94%: Strong retail/institutional overlap.
+              - Below 90%: AUTO-REJECT.
+              
               Respond with JSON only.`
             },
             {
               role: "user",
-              content: `Requirement: Generate an M5 institutional entry for ${pair}.
-              Return JSON: { "action": "BUY/SELL", "confidence": number, "reasoning": "Institutional-grade technical justification for 90%+ confidence" }`
+              content: `Generate a sniper entry for ${pair} in the ${getCurrentSession()} session.
+              Requirements: 
+              - 95%+ Confidence preferred.
+              - If Trend alignment is missing, output NO_TRADE.
+              Return JSON: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
             }
           ],
           response_format: { type: "json_object" }
