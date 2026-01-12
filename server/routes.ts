@@ -88,30 +88,30 @@ export async function registerRoutes(
       `;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: `You are a professional forex trading analyst.
-            Your task is to provide high-probability 5-minute (M5) binary options signals.
+            content: `You are an AI-powered market pattern recognition service.
+            Your task is to analyze real-time market data and identify high-probability CALL/PUT actions.
             
-            STRATEGY:
-            - Focus on Price Action and Market Structure.
-            - Always align with the M15 trend.
-            - Identify key support and resistance zones.
-            - Use RSI for momentum confirmation.
+            UNCOMPROMISING ENTRY PROTOCOL:
+            1. PATTERN RECOGNITION: Identify specific market patterns (Double Top/Bottom, Head and Shoulders, Bull/Bear Flags, Pin Bars).
+            2. CONFIDENCE SCORING: Provide a confidence score based on pattern clarity and technical confluence.
+            3. TECHNICAL ANALYSIS: Cross-reference patterns with RSI, Support/Resistance, and Trend.
             
             RESPONSE FORMAT:
             You must respond with a JSON object:
             {
-              "action": "BUY" | "SELL" | "NO_TRADE",
+              "action": "CALL" | "PUT" | "NO_TRADE",
               "confidence": number (0-100),
+              "pattern_detected": "string",
               "reasoning": "string"
             }`
           },
           {
             role: "user",
-            content: `Analyze ${pair} for the next 5-minute candle.
+            content: `Perform real-time pattern recognition for ${pair}.
             Market Context: ${marketContext}
             Session: ${getCurrentSession()}`
           }
@@ -123,28 +123,29 @@ export async function registerRoutes(
       if (!content) throw new Error("No response from AI");
       
       const analysis = JSON.parse(content);
+      const tradeAction = analysis.action === "CALL" ? "BUY" : (analysis.action === "PUT" ? "SELL" : analysis.action);
+
       if (analysis.confidence < settings.minConfidence) {
         return res.status(400).json({ message: "Low confidence signal rejected" });
       }
       
       const now = new Date();
-      // Round up to next 5 minute block
       const startTime = new Date(Math.ceil((now.getTime() + 2 * 60 * 1000) / (5 * 60 * 1000)) * (5 * 60 * 1000));
       const endTime = new Date(startTime.getTime() + 5 * 60 * 1000);
 
       const signal = await storage.createSignal({
         pair,
-        action: analysis.action,
+        action: tradeAction,
         confidence: analysis.confidence,
         startTime,
         endTime,
-        analysis: analysis.reasoning
+        analysis: `${analysis.pattern_detected}: ${analysis.reasoning}`
       });
 
       await storage.createTrade({
         signalId: signal.id,
         pair,
-        action: analysis.action,
+        action: tradeAction,
         confidence: analysis.confidence,
         session: getCurrentSession()
       });
@@ -221,30 +222,30 @@ export async function registerRoutes(
         }
 
         const response = await openai.chat.completions.create({
-          model: "gpt-4o",
+          model: "gpt-4o-mini",
           messages: [
             {
               role: "system",
-              content: `You are a professional forex trading analyst.
-              Your task is to provide high-probability 5-minute (M5) binary options signals.
+              content: `You are an AI-powered market pattern recognition service.
+              Your task is to analyze real-time market data and identify high-probability CALL/PUT actions.
               
-              STRATEGY:
-              - Focus on Price Action and Market Structure.
-              - Always align with the M15 trend.
-              - Identify key support and resistance zones.
-              - Use RSI for momentum confirmation.
+              UNCOMPROMISING ENTRY PROTOCOL:
+              1. PATTERN RECOGNITION: Identify specific market patterns (Double Top/Bottom, Head and Shoulders, Bull/Bear Flags, Pin Bars).
+              2. CONFIDENCE SCORING: Provide a confidence score based on pattern clarity and technical confluence.
+              3. TECHNICAL ANALYSIS: Cross-reference patterns with RSI, Support/Resistance, and Trend.
               
               RESPONSE FORMAT:
               You must respond with a JSON object:
               {
-                "action": "BUY" | "SELL" | "NO_TRADE",
+                "action": "CALL" | "PUT" | "NO_TRADE",
                 "confidence": number (0-100),
+                "pattern_detected": "string",
                 "reasoning": "string"
               }`
             },
             {
               role: "user",
-              content: `Analyze ${pair} for the next 5-minute candle.
+              content: `Perform real-time pattern recognition for ${pair}.
               Session: ${session}`
             }
           ],
@@ -255,27 +256,29 @@ export async function registerRoutes(
         if (!content) continue;
         
         const analysis = JSON.parse(content);
+        const tradeAction = analysis.action === "CALL" ? "BUY" : (analysis.action === "PUT" ? "SELL" : analysis.action);
+
         const now = new Date();
         const startTime = new Date(Math.ceil((now.getTime() + 2 * 60 * 1000) / (5 * 60 * 1000)) * (5 * 60 * 1000));
         const endTime = new Date(startTime.getTime() + 5 * 60 * 1000);
 
         const signal = await storage.createSignal({
           pair,
-          action: analysis.action,
+          action: tradeAction,
           confidence: analysis.confidence,
           startTime,
           endTime,
-          analysis: analysis.reasoning
+          analysis: `${analysis.pattern_detected}: ${analysis.reasoning}`
         });
 
         // Send Telegram notification
-        if (settings.telegramToken && settings.telegramGroupId && analysis.action !== "NO_TRADE") {
+        if (settings.telegramToken && settings.telegramGroupId && tradeAction !== "NO_TRADE") {
           try {
-            const message = `🚀 *New Signal Generated*\n\n` +
+            const message = `🚀 *New Pattern Detected*\n\n` +
               `Pair: ${pair}\n` +
-              `Action: ${analysis.action === "BUY" ? "🟢 BUY" : "🔴 SELL"}\n` +
+              `Pattern: ${analysis.pattern_detected}\n` +
+              `Action: ${tradeAction === "BUY" ? "🟢 CALL" : "🔴 PUT"}\n` +
               `Confidence: ${analysis.confidence}%\n` +
-              `Duration: 5 Minutes\n\n` +
               `Target Time: ${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`;
 
             fetch(`https://api.telegram.org/bot${settings.telegramToken}/sendMessage`, {
@@ -295,7 +298,7 @@ export async function registerRoutes(
         await storage.createTrade({
           signalId: signal.id,
           pair,
-          action: analysis.action,
+          action: tradeAction,
           confidence: analysis.confidence,
           session
         });
