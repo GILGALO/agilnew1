@@ -36,6 +36,7 @@ export const settings = pgTable("settings", {
   minConfidence: integer("min_confidence").default(90).notNull(),
   autoTrading: boolean("auto_trading").default(false).notNull(),
   avoidHighImpactNews: boolean("avoid_high_impact_news").default(true).notNull(),
+  customPairs: text("custom_pairs").array(),
 });
 
 export const newsEvents = pgTable("news_events", {

@@ -162,7 +162,7 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3">
                       <Input 
                         type="number"
-                        min="70"
+                        min="50"
                         max="100"
                         className="w-20 text-center font-bold bg-muted/30"
                         defaultValue={settings.minConfidence}
@@ -170,6 +170,26 @@ export default function SettingsPage() {
                       />
                       <span className="text-sm font-medium">%</span>
                     </div>
+                  </div>
+                </div>
+
+                <Separator className="opacity-50" />
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold">Active Currency Pairs</Label>
+                    <p className="text-xs text-muted-foreground mb-3">Comma-separated list of pairs to scan (e.g. EUR/USD, GBP/USD). Leave empty to use session defaults.</p>
+                    <Input 
+                      placeholder="EUR/USD, GBP/USD, AUD/JPY"
+                      className="font-mono bg-muted/30"
+                      defaultValue={settings.customPairs?.join(", ") || ""}
+                      onBlur={(e) => {
+                        const pairs = e.target.value.split(",")
+                          .map(p => p.trim().toUpperCase())
+                          .filter(p => p.length > 0);
+                        mutation.mutate({ customPairs: pairs });
+                      }}
+                    />
                   </div>
                 </div>
               </CardContent>

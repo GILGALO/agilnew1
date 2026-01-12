@@ -190,7 +190,10 @@ export async function registerRoutes(
       "Night Break": []
     };
 
-    const pairs = sessionPairs[session] || [];
+    const pairs = settings.customPairs && settings.customPairs.length > 0 
+      ? settings.customPairs 
+      : (sessionPairs[session] || []);
+
     if (pairs.length === 0) {
       return res.status(400).json({ message: "No active trading pairs for current session" });
     }
