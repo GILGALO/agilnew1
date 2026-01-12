@@ -312,5 +312,32 @@ export async function registerRoutes(
     res.json(results);
   });
 
+  app.post("/api/chat", async (req, res) => {
+    const { message, signalId } = req.body;
+    
+    try {
+      let context = "You are a professional trading educator for TradeBot.ai.";
+      if (signalId) {
+        const signal = await storage.getSignal(signalId);
+        if (signal) {
+          context += `\n\nUser is asking about this signal:\nPair: ${signal.pair}\nAction: ${signal.action}\nAnalysis: ${signal.analysis}`;
+        }
+      }
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: context },
+          { role: "user", content: message }
+        ]
+      });
+
+      res.json({ message: response.choices[0].message.content });
+    } catch (error) {
+      console.error("Chat failed:", error);
+      res.status(500).json({ message: "Education service temporarily unavailable" });
+    }
+  });
+
   return httpServer;
 }

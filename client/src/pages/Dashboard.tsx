@@ -22,6 +22,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
+import { TradingCoach } from "@/components/TradingCoach";
+
 export default function Dashboard() {
   const { data: signals, isLoading, error, refetch } = useSignals();
   const { data: sessionData } = useQuery<{ session: string }>({
@@ -299,6 +301,7 @@ export default function Dashboard() {
           </div>
         </section>
       </main>
+      <TradingCoach />
     </div>
   );
 }
