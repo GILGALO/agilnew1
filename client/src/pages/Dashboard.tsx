@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/table";
 import { Loader2, RefreshCw, AlertCircle, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Dashboard() {
   const { data: signals, isLoading, error, refetch } = useSignals();
@@ -33,6 +34,38 @@ export default function Dashboard() {
   });
   const [autoMode, setAutoMode] = useState(false);
   const [selectedPair, setSelectedPair] = useState("AUDJPY");
+  const [timeLeft, setTimeLeft] = useState("");
+  const { mutate: generateSignal, isPending: isGenerating } = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/signals/generate", { pair: selectedPair });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/signals"] });
+    },
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      
+      // Calculate next 5-minute mark
+      const nextMark = new Date(now);
+      nextMark.setMinutes(Math.ceil((minutes + 0.1) / 5) * 5, 0, 0);
+      
+      const diff = nextMark.getTime() - now.getTime();
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
+
+      // Auto-generate 2 minutes before the mark (at exactly 3:00 remaining)
+      if (autoMode && m === 2 && s === 0 && !isGenerating) {
+        generateSignal();
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [autoMode, generateSignal, isGenerating]);
 
   const highImpactNews = newsEvents?.filter(n => n.impact === "High") || [];
 
@@ -93,6 +126,12 @@ export default function Dashboard() {
           </div>
           
           <div className="flex items-center gap-4">
+            {autoMode && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-lg text-primary animate-pulse">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm font-mono font-bold">Next: {timeLeft}</span>
+              </div>
+            )}
             <div className="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg">
               <span className="text-sm font-medium">Auto-Trading</span>
               <Switch 
