@@ -265,26 +265,43 @@ export async function registerRoutes(
         const startTime = new Date(Math.ceil((now.getTime() + 2 * 60 * 1000) / (5 * 60 * 1000)) * (5 * 60 * 1000));
         const endTime = new Date(startTime.getTime() + 5 * 60 * 1000);
 
-        const signal = await storage.createSignal({
-          pair,
-          action: tradeAction,
-          confidence: analysis.confidence,
-          startTime,
-          endTime,
-          analysis: `${analysis.pattern_detected} | Entry: ${analysis.entry_price} | ${analysis.reasoning}`
-        });
+        // Active Analysis: Update existing pending signal or create new
+        const existingSignals = await storage.getSignals();
+        const pendingSignal = existingSignals.find(s => 
+          s.pair === pair && 
+          s.startTime.getTime() === startTime.getTime()
+        );
 
-        // Send Telegram notification
+        let signal;
+        if (pendingSignal) {
+          // Update the analysis and confidence for the pending signal
+          signal = await storage.updateSignal(pendingSignal.id, {
+            action: tradeAction,
+            confidence: analysis.confidence,
+            analysis: `${analysis.pattern_detected} | Entry: ${analysis.entry_price} | ${analysis.reasoning}`
+          });
+        } else {
+          signal = await storage.createSignal({
+            pair,
+            action: tradeAction,
+            confidence: analysis.confidence,
+            startTime,
+            endTime,
+            analysis: `${analysis.pattern_detected} | Entry: ${analysis.entry_price} | ${analysis.reasoning}`
+          });
+        }
+
+        // Send Telegram notification only for high confidence or major changes
         if (settings.telegramToken && settings.telegramGroupId && tradeAction !== "NO_TRADE") {
           try {
-            const message = `🚀 *New Signal Generated*\n\n` +
+            const message = `🚀 *Active Signal Update*\n\n` +
               `📊 *${pair}*\n` +
               `${tradeAction === "BUY" ? "BUY/CALL 📈" : "SELL/PUT 📉"}\n\n` +
               `🎯 Confidence: ${analysis.confidence}% ${analysis.confidence >= 90 ? "🔥" : ""}\n` +
               `⏰ Start: ${startTime.toLocaleTimeString()}\n` +
               `🏁 End: ${endTime.toLocaleTimeString()}\n` +
               `💰 Entry: ${analysis.entry_price}\n\n` +
-              `🔍 Detected: ${analysis.pattern_detected}\n` +
+              `🔍 Pattern: ${analysis.pattern_detected}\n` +
               `📝 Analysis: ${analysis.reasoning}`;
 
             fetch(`https://api.telegram.org/bot${settings.telegramToken}/sendMessage`, {

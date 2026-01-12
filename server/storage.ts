@@ -23,6 +23,7 @@ export interface IStorage {
   createTrade(trade: InsertTrade): Promise<Trade>;
   getSettings(): Promise<Settings>;
   updateSettings(settings: Partial<InsertSettings>): Promise<Settings>;
+  updateSignal(id: number, update: Partial<Signal>): Promise<Signal>;
   getNewsEvents(currency?: string): Promise<NewsEvent[]>;
   createNewsEvent(news: InsertNewsEvent): Promise<NewsEvent>;
 }
@@ -66,6 +67,11 @@ export class DatabaseStorage implements IStorage {
   async updateSettings(update: Partial<InsertSettings>): Promise<Settings> {
     const s = await this.getSettings();
     const [updated] = await db.update(settings).set(update).where(eq(settings.id, s.id)).returning();
+    return updated;
+  }
+
+  async updateSignal(id: number, update: Partial<Signal>): Promise<Signal> {
+    const [updated] = await db.update(signals).set(update).where(eq(signals.id, id)).returning();
     return updated;
   }
 
