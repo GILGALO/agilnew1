@@ -32,7 +32,26 @@ export default function Dashboard() {
     queryKey: ["/api/news"],
     refetchInterval: 300000,
   });
+  const { data: settings } = useQuery<any>({
+    queryKey: ["/api/settings"],
+  });
   const [autoMode, setAutoMode] = useState(false);
+
+  useEffect(() => {
+    if (settings) {
+      setAutoMode(settings.autoTrading);
+    }
+  }, [settings]);
+
+  const updateSettings = useMutation({
+    mutationFn: async (values: any) => {
+      const res = await apiRequest("PATCH", "/api/settings", values);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/settings"] });
+    },
+  });
   const [selectedPair, setSelectedPair] = useState("AUDJPY");
   const [timeLeft, setTimeLeft] = useState("");
   const { mutate: generateSignals, isPending: isGenerating } = useMutation({
@@ -141,7 +160,10 @@ export default function Dashboard() {
               <span className="text-sm font-medium">Auto-Trading</span>
               <Switch 
                 checked={autoMode}
-                onCheckedChange={setAutoMode}
+                onCheckedChange={(checked) => {
+                  setAutoMode(checked);
+                  updateSettings.mutate({ autoTrading: checked });
+                }}
                 className="data-[state=checked]:bg-primary"
               />
             </div>
