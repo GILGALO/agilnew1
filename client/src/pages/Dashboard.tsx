@@ -67,6 +67,11 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, [autoMode, generateSignals, isGenerating]);
 
+  const { data: trades, isLoading: isLoadingTrades } = useQuery<any[]>({
+    queryKey: ["/api/trades"],
+    refetchInterval: 30000,
+  });
+
   const highImpactNews = newsEvents?.filter(n => n.impact === "High") || [];
 
   // Sort signals by start time descending
@@ -250,7 +255,18 @@ export default function Dashboard() {
                           {format(new Date(signal.startTime), "HH:mm")} - {format(new Date(signal.endTime), "HH:mm")}
                         </TableCell>
                         <TableCell className="text-right">
-                          <span className="text-xs font-mono text-muted-foreground">Closed</span>
+                          {(() => {
+                            const trade = trades?.find(t => t.signalId === signal.id);
+                            if (!trade || !trade.result) return <span className="text-xs font-mono text-muted-foreground">Closed</span>;
+                            return (
+                              <span className={cn(
+                                "text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded",
+                                trade.result === "win" ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                              )}>
+                                {trade.result}
+                              </span>
+                            );
+                          })()}
                         </TableCell>
                       </TableRow>
                     );

@@ -43,7 +43,7 @@ export async function registerRoutes(
     res.json(updated);
   });
 
-  app.get("/api/history", async (req, res) => {
+  app.get("/api/trades", async (req, res) => {
     const history = await storage.getTradeHistory();
     res.json(history);
   });
