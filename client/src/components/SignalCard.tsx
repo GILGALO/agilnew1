@@ -11,6 +11,7 @@ interface SignalCardProps {
 
 export function SignalCard({ signal, className }: SignalCardProps) {
   const isBuy = signal.action === "BUY" || signal.action === "CALL";
+  const isNoTrade = signal.action === "NO_TRADE";
   const now = new Date();
   const startTime = new Date(signal.startTime);
   const endTime = new Date(signal.endTime);
@@ -36,7 +37,7 @@ export function SignalCard({ signal, className }: SignalCardProps) {
       <div 
         className={cn(
           "absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] opacity-20 pointer-events-none",
-          isBuy ? "bg-green-500" : "bg-red-500"
+          isNoTrade ? "bg-muted" : (isBuy ? "bg-green-500" : "bg-red-500")
         )} 
       />
 
@@ -81,9 +82,9 @@ export function SignalCard({ signal, className }: SignalCardProps) {
           <div className="text-sm font-medium text-muted-foreground mb-2">ACTION</div>
           <div className={cn(
             "flex items-center gap-3 text-4xl font-black tracking-tighter",
-            isBuy ? "text-green-500 text-glow-green" : "text-red-500 text-glow-red"
+            isNoTrade ? "text-muted-foreground" : (isBuy ? "text-green-500 text-glow-green" : "text-red-500 text-glow-red")
           )}>
-            {isBuy ? <TrendingUp className="w-10 h-10" /> : <TrendingDown className="w-10 h-10" />}
+            {isNoTrade ? <Activity className="w-10 h-10" /> : (isBuy ? <TrendingUp className="w-10 h-10" /> : <TrendingDown className="w-10 h-10" />)}
             {signal.action}
           </div>
         </div>
@@ -92,7 +93,7 @@ export function SignalCard({ signal, className }: SignalCardProps) {
           <div className="text-sm font-medium text-muted-foreground mb-2">TARGET</div>
           <div className="flex items-center justify-end gap-2 text-xl font-bold text-foreground">
             <Target className="w-5 h-5 text-primary" />
-            <span>AI Analysis</span>
+            <span>{isNoTrade ? "WAIT" : "AI Analysis"}</span>
           </div>
         </div>
       </div>
@@ -109,7 +110,7 @@ export function SignalCard({ signal, className }: SignalCardProps) {
           <div 
             className={cn(
               "h-full rounded-full transition-all duration-1000 ease-linear",
-              isBuy ? "bg-green-500" : "bg-red-500"
+              isNoTrade ? "bg-muted-foreground" : (isBuy ? "bg-green-500" : "bg-red-500")
             )}
             style={{ width: `${isActive ? 100 - progress : isExpired ? 0 : 100}%` }}
           />

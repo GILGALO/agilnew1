@@ -92,6 +92,7 @@ export async function registerRoutes(
             content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
             Analyze market structures, RSI divergences, and Moving Average crossovers with surgical precision. 
             Only generate signals if confidence is exceptionally high (${settings.minConfidence}%+). 
+            If market conditions are not optimal or high-probability setups are missing, set action to "NO_TRADE" and explain why.
             Focus on high-probability setups during peak session liquidity.
             Respond with JSON only.`
           },
@@ -101,7 +102,7 @@ export async function registerRoutes(
             Current Market Indicators: RSI(14)=${Math.floor(Math.random() * 40 + 30)}, Trend=Bullish/Neutral.
             Requirement: Generate an M5 signal for the next 5-minute candle.
             Constraints: Minimum ${settings.minConfidence}% confidence filter.
-            Return JSON format: { "action": "BUY/SELL", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
+            Return JSON format: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
           }
         ],
         response_format: { type: "json_object" }
