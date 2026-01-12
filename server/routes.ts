@@ -91,17 +91,16 @@ export async function registerRoutes(
             role: "system",
             content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
             Analyze market structures, RSI divergences, and Moving Average crossovers with surgical precision. 
-            YOUR PRIMARY GOAL: Identify the single best high-probability trade direction (BUY or SELL).
-            Only output NO_TRADE if there is absolutely zero market movement or extreme risk (like major news).
-            Be more aggressive in finding valid technical setups based on RSI, Moving Averages, and Volume.
+            YOUR PRIMARY GOAL: Identify the single best institutional-grade trade direction (BUY or SELL).
+            CRITICAL: Only generate a signal if your internal confidence score is 90% or higher.
+            If the setup is not absolutely top-tier, you MUST output NO_TRADE.
             Respond with JSON only.`
           },
           {
             role: "user",
             content: `Deep Analysis Required: ${pair} during ${getCurrentSession()} session.
-            Current Market Indicators: RSI(14)=${Math.floor(Math.random() * 40 + 30)}, Trend=Bullish/Neutral.
-            Requirement: Generate an M5 signal for the next 5-minute candle.
-            Return JSON format: { "action": "BUY/SELL", "confidence": number, "reasoning": "Detailed institutional-grade technical justification" }`
+            Requirement: Generate an ultra-high-probability M5 signal.
+            Return JSON format: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed justification for 90%+ confidence" }`
           }
         ],
         response_format: { type: "json_object" }
@@ -211,16 +210,17 @@ export async function registerRoutes(
             {
               role: "system",
               content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
-              Analyze market structures for ${pair} during ${session} session.
-              YOUR PRIMARY GOAL: Identify the single best high-probability trade direction (BUY or SELL).
-              Only output NO_TRADE if there is absolutely zero market movement or extreme risk (like major news).
-              Be more aggressive in finding valid technical setups based on RSI, Moving Averages, and Volume.
+              Analyze market structures for ${pair} during ${session} session with extreme precision.
+              YOUR PRIMARY GOAL: Identify the single best institutional-grade trade direction (BUY or SELL).
+              CRITICAL: Only generate a signal if your internal confidence score is 90% or higher.
+              If the setup is not absolutely top-tier or if there is market noise/low liquidity, you MUST output NO_TRADE.
+              Prioritize quality over quantity. A signal with 90%+ confidence is the absolute priority.
               Respond with JSON only.`
             },
             {
               role: "user",
-              content: `Requirement: Generate a high-probability M5 signal for ${pair}.
-              Return JSON: { "action": "BUY/SELL", "confidence": number, "reasoning": "string" }`
+              content: `Requirement: Generate an ultra-high-probability M5 signal for ${pair}.
+              Return JSON: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "Detailed technical justification for 90%+ confidence" }`
             }
           ],
           response_format: { type: "json_object" }
