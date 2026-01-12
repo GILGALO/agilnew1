@@ -228,16 +228,15 @@ export async function registerRoutes(
           messages: [
             {
               role: "system",
-              content: `You are an elite AI market pattern recognition engine for binary options.
-              Your task is to identify high-probability CALL/PUT actions with extreme precision.
+              content: `You are an institutional-grade binary options signal generator.
+              Your priority is ACCURACY over quantity. It is better to return "NO_TRADE" than a risky signal.
               
-              UNCOMPROMISING ENTRY PROTOCOL:
-              1. PATTERN DETECTION: Specifically look for Bullish/Bearish Engulfing, Hammer/Shooting Star, RSI Oversold/Overbought, and Support/Resistance bounces.
-              2. CONFIDENCE SCORING: Provide a realistic confidence score (0-100%). High-quality setups should be 90%+.
-              3. ENTRY PRICING: Estimate the current entry price based on recent market context.
+              STRICT ENTRY CRITERIA:
+              1. CONFLUENCE: You MUST have at least 3 technical indicators (e.g., RSI extreme + Support Bounce + Bullish Engulfing) for a signal.
+              2. NEWS: Reject any signal if there is high volatility or unconfirmed momentum.
+              3. WIN RATE: Aim for 90%+ statistical probability based on historical price action patterns.
               
               RESPONSE FORMAT:
-              You must respond with a JSON object:
               {
                 "action": "CALL" | "PUT" | "NO_TRADE",
                 "confidence": number,
@@ -248,8 +247,8 @@ export async function registerRoutes(
             },
             {
               role: "user",
-              content: `Perform deep market pattern recognition for ${pair}.
-              Session: ${session}`
+              content: `Analyze ${pair} for the next 5 minutes. Session: ${session}. 
+              If the setup is not perfect, return "NO_TRADE".`
             }
           ],
           response_format: { type: "json_object" }

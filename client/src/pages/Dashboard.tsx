@@ -80,9 +80,8 @@ export default function Dashboard() {
       const s = Math.floor((diff % 60000) / 1000);
       setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
 
-      // Auto-generate starting 3 minutes before the mark, every 30 seconds
-      // This provides "Active Analysis" updates as we approach the trade window
-      if (autoMode && m <= 3 && m >= 0 && (s === 0 || s === 30) && !isGenerating) {
+      // Auto-generate starting 3 minutes before the mark, every 1 minute for stability
+      if (autoMode && m <= 3 && m >= 0 && s === 0 && !isGenerating) {
         generateSignals();
       }
     }, 1000);
