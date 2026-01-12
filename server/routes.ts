@@ -88,30 +88,31 @@ export async function registerRoutes(
       `;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: `You are an AI-powered market pattern recognition service.
-            Your task is to analyze real-time market data and identify high-probability CALL/PUT actions.
+            content: `You are an elite AI market pattern recognition engine for binary options.
+            Your task is to identify high-probability CALL/PUT actions with extreme precision.
             
             UNCOMPROMISING ENTRY PROTOCOL:
-            1. PATTERN RECOGNITION: Identify specific market patterns (Double Top/Bottom, Head and Shoulders, Bull/Bear Flags, Pin Bars).
-            2. CONFIDENCE SCORING: Provide a confidence score based on pattern clarity and technical confluence.
-            3. TECHNICAL ANALYSIS: Cross-reference patterns with RSI, Support/Resistance, and Trend.
+            1. PATTERN DETECTION: Specifically look for Bullish/Bearish Engulfing, Hammer/Shooting Star, RSI Oversold/Overbought, and Support/Resistance bounces.
+            2. CONFIDENCE SCORING: Provide a realistic confidence score (0-100%). High-quality setups should be 90%+.
+            3. ENTRY PRICING: Estimate the current entry price based on recent market context.
             
             RESPONSE FORMAT:
             You must respond with a JSON object:
             {
               "action": "CALL" | "PUT" | "NO_TRADE",
-              "confidence": number (0-100),
+              "confidence": number,
               "pattern_detected": "string",
+              "entry_price": "string",
               "reasoning": "string"
             }`
           },
           {
             role: "user",
-            content: `Perform real-time pattern recognition for ${pair}.
+            content: `Perform deep market pattern recognition for ${pair}.
             Market Context: ${marketContext}
             Session: ${getCurrentSession()}`
           }
@@ -139,7 +140,7 @@ export async function registerRoutes(
         confidence: analysis.confidence,
         startTime,
         endTime,
-        analysis: `${analysis.pattern_detected}: ${analysis.reasoning}`
+        analysis: `${analysis.pattern_detected} | Entry: ${analysis.entry_price} | ${analysis.reasoning}`
       });
 
       await storage.createTrade({
@@ -147,6 +148,7 @@ export async function registerRoutes(
         pair,
         action: tradeAction,
         confidence: analysis.confidence,
+        entryPrice: analysis.entry_price,
         session: getCurrentSession()
       });
 
