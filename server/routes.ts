@@ -198,7 +198,7 @@ export async function registerRoutes(
     
     // Define pairs for each session
     const sessionPairs: Record<string, string[]> = {
-      "Asian": ["AUD/JPY", "NZD/JPY", "AUD/USD", "NZD/USD"],
+      "Asian": ["AUD/JPY", "NZD/JPY", "AUD/USD"],
       "London": ["EUR/USD", "GBP/USD", "EUR/GBP", "GBP/JPY"],
       "New York": ["EUR/USD", "GBP/USD", "USD/JPY", "USD/CAD"],
       "Lunch Break": [],
