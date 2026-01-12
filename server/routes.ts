@@ -145,5 +145,87 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/signals/generate-all", async (req, res) => {
+    const settings = await storage.getSettings();
+    const session = getCurrentSession();
+    
+    // Define pairs for each session
+    const sessionPairs: Record<string, string[]> = {
+      "Asian": ["AUD/JPY", "NZD/JPY", "AUD/USD", "NZD/USD"],
+      "London": ["EUR/USD", "GBP/USD", "EUR/GBP", "GBP/JPY"],
+      "New York": ["EUR/USD", "GBP/USD", "USD/JPY", "USD/CAD"],
+      "Lunch Break": [],
+      "Night Break": []
+    };
+
+    const pairs = sessionPairs[session] || [];
+    if (pairs.length === 0) {
+      return res.status(400).json({ message: "No active trading pairs for current session" });
+    }
+
+    const results = [];
+    for (const pair of pairs) {
+      const currency = pair.split('/')[0];
+      
+      try {
+        if (settings.avoidHighImpactNews) {
+          const activeNews = await storage.getNewsEvents(currency);
+          if (activeNews.find(n => n.impact === "High")) continue;
+        }
+
+        const response = await openai.chat.completions.create({
+          model: "gpt-5",
+          messages: [
+            {
+              role: "system",
+              content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
+              Analyze market structures for ${pair} during ${session} session.
+              Only generate signals if confidence is exceptionally high (${settings.minConfidence}%+). 
+              If conditions are not optimal, set action to "NO_TRADE".
+              Respond with JSON only.`
+            },
+            {
+              role: "user",
+              content: `Requirement: Generate an M5 signal for ${pair}.
+              Return JSON: { "action": "BUY/SELL/NO_TRADE", "confidence": number, "reasoning": "string" }`
+            }
+          ],
+          response_format: { type: "json_object" }
+        });
+
+        const content = response.choices[0].message.content;
+        if (!content) continue;
+        
+        const analysis = JSON.parse(content);
+        const now = new Date();
+        const startTime = new Date(Math.ceil((now.getTime() + 2 * 60 * 1000) / (5 * 60 * 1000)) * (5 * 60 * 1000));
+        const endTime = new Date(startTime.getTime() + 5 * 60 * 1000);
+
+        const signal = await storage.createSignal({
+          pair,
+          action: analysis.action,
+          confidence: analysis.confidence,
+          startTime,
+          endTime,
+          analysis: analysis.reasoning
+        });
+
+        await storage.createTrade({
+          signalId: signal.id,
+          pair,
+          action: analysis.action,
+          confidence: analysis.confidence,
+          session
+        });
+
+        results.push(signal);
+      } catch (error) {
+        console.error(`Generation failed for ${pair}:`, error);
+      }
+    }
+
+    res.json(results);
+  });
+
   return httpServer;
 }

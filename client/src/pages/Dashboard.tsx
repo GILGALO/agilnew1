@@ -35,9 +35,9 @@ export default function Dashboard() {
   const [autoMode, setAutoMode] = useState(false);
   const [selectedPair, setSelectedPair] = useState("AUDJPY");
   const [timeLeft, setTimeLeft] = useState("");
-  const { mutate: generateSignal, isPending: isGenerating } = useMutation({
+  const { mutate: generateSignals, isPending: isGenerating } = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", "/api/signals/generate", { pair: selectedPair });
+      return apiRequest("POST", "/api/signals/generate-all");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/signals"] });
@@ -61,11 +61,11 @@ export default function Dashboard() {
 
       // Auto-generate 2 minutes before the mark (at exactly 3:00 remaining)
       if (autoMode && m === 2 && s === 0 && !isGenerating) {
-        generateSignal();
+        generateSignals();
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [autoMode, generateSignal, isGenerating]);
+  }, [autoMode, generateSignals, isGenerating]);
 
   const highImpactNews = newsEvents?.filter(n => n.impact === "High") || [];
 
