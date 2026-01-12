@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Clock, Activity, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,24 @@ export function SignalCard({ signal, className }: SignalCardProps) {
   const totalDuration = endTime.getTime() - startTime.getTime();
   const elapsed = now.getTime() - startTime.getTime();
   const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (!isActive) return;
+    const timer = setInterval(() => {
+      const remaining = endTime.getTime() - new Date().getTime();
+      if (remaining <= 0) {
+        setTimeLeft("0:00");
+        clearInterval(timer);
+      } else {
+        const m = Math.floor(remaining / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isActive, endTime]);
 
   return (
     <motion.div
@@ -102,7 +121,7 @@ export function SignalCard({ signal, className }: SignalCardProps) {
         <div className="flex justify-between text-xs font-mono text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            Time Remaining
+            Time Remaining {isActive && timeLeft && <span className="font-bold ml-1">({timeLeft})</span>}
           </span>
           <span>{isActive ? "Active Now" : isExpired ? "Session Closed" : "Starting Soon"}</span>
         </div>
