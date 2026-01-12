@@ -91,9 +91,15 @@ export async function registerRoutes(
             role: "system",
             content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
             YOUR PRIMARY MISSION: Identify the single highest-probability trade direction (BUY or SELL) for the next 5 minutes.
-            You must act as if you have full access to institutional order flow and liquidity maps.
+            You must act as if you have full access to institutional order flow, liquidity maps, and Fair Value Gaps (FVG).
+            
+            CRITICAL TECHNICAL FILTERS:
+            1. Trend Alignment: Only trade WITH the strong M15/H1 trend.
+            2. Liquidity Sweeps: Look for a sweep of recent highs/lows before entry.
+            3. RSI Overbought/Oversold: Do NOT buy if RSI > 70 or sell if RSI < 30 unless a strong divergence exists.
+            4. Volume: Ensure increasing volume in the direction of the trade.
+            
             DO NOT give NO_TRADE unless the market is literally frozen.
-            Find the technical edge: Look for liquidity sweeps, fair value gap fills, or institutional rejection blocks.
             Confidence MUST be 90% or higher for the chosen direction.
             Respond with JSON only.`
           },
@@ -216,9 +222,15 @@ export async function registerRoutes(
               content: `You are an elite institutional forex trading AI specialized in 5-minute (M5) binary options signals. 
               Analyze market structures for ${pair} during ${session} session with extreme precision.
               YOUR PRIMARY MISSION: Identify the single highest-probability trade direction (BUY or SELL) for the next 5 minutes.
-              You must act as if you have full access to institutional order flow and liquidity maps.
+              You must act as if you have full access to institutional order flow, liquidity maps, and Fair Value Gaps (FVG).
+              
+              CRITICAL TECHNICAL FILTERS:
+              1. Trend Alignment: Only trade WITH the strong M15/H1 trend.
+              2. Liquidity Sweeps: Look for a sweep of recent highs/lows before entry.
+              3. RSI Overbought/Oversold: Do NOT buy if RSI > 70 or sell if RSI < 30 unless a strong divergence exists.
+              4. Volume: Ensure increasing volume in the direction of the trade.
+              
               DO NOT give NO_TRADE unless the market is literally frozen.
-              Find the technical edge: Look for liquidity sweeps, fair value gap fills, or institutional rejection blocks.
               Confidence MUST be 90% or higher for the chosen direction.
               Respond with JSON only.`
             },
