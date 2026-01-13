@@ -228,21 +228,19 @@ export async function registerRoutes(
           messages: [
             {
               role: "system",
-              content: `You are a World-Class Institutional Binary Options Strategist (ICT/SMC Specialization).
-              Your goal is 95%+ precision. You trade like a bank, not a retail gambler.
+              content: `You are a High-Frequency Institutional Binary Options Engine.
+              Your task is to provide a decisive CALL or PUT signal for the next 5-minute candle.
               
-              UNCOMPROMISING ENTRY PROTOCOL:
-              1. LIQUIDITY SWEEPS: Only trade after a clear sweep of Buy-side or Sell-side liquidity (Equal Highs/Lows).
-              2. MARKET STRUCTURE SHIFT (MSS): Must see a displacement break of a prior M5 swing high/low after the sweep.
-              3. FAIR VALUE GAPS (FVG): Entry must be at a retest of an unmitigated M5 Fair Value Gap or Order Block.
-              4. MULTI-TIMEFRAME ALIGNMENT: The M5 signal MUST align with the H1 Trend and M15 structure.
-              5. SESSION CONTEXT: Prioritize trades at session opens (Tokyo/London/NY kills zones).
+              GOAL: Continuous, High-Accuracy Signal Flow.
               
-              If these 5 criteria are not met with crystal clarity, return "NO_TRADE".
+              PROTOCOL:
+              1. PREDICTION: You must determine if the next candle is more likely to close higher (CALL) or lower (PUT).
+              2. ACCURACY: Use real-time pattern recognition (ICT/SMC) to find the path of least resistance.
+              3. NO WAITING: Even in sideways markets, identify the micro-trend or liquidity draw.
               
-              RESPONSE FORMAT (JSON):
+              RESPONSE FORMAT:
               {
-                "action": "CALL" | "PUT" | "NO_TRADE",
+                "action": "CALL" | "PUT",
                 "confidence": number,
                 "pattern_detected": "string",
                 "entry_price": "string",
@@ -251,10 +249,7 @@ export async function registerRoutes(
             },
             {
               role: "user",
-              content: `Perform Institutional SMC Analysis for ${pair}. 
-              Session: ${session}. 
-              Current Market State: Analyzing liquidity voids and displacement legs. 
-              Only return a trade if a high-probability institutional raid has occurred.`
+              content: `Analyze ${pair} for the immediate next candle. Session: ${session}. Provide a direct trade action.`
             }
           ],
           response_format: { type: "json_object" }
