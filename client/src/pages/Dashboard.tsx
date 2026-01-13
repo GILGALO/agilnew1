@@ -66,32 +66,34 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const seconds = now.getSeconds();
-      const minutes = now.getMinutes();
-      
-      const nextMark = new Date(now);
-      nextMark.setMinutes(Math.ceil((minutes + 0.1) / 5) * 5, 0, 0);
-      
-      const diff = nextMark.getTime() - now.getTime();
-      const m = Math.floor(diff / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
+    // Polling interval for auto-mode
+    const pollInterval = 30000;
 
-      // High-Frequency Auto-mode: Continuous polling every 30 seconds
+    const timer = setInterval(() => {
+      // 1. Calculate countdown for UI (every 1s for smoothness)
+      const now = new Date();
+      const nextMark = new Date(now);
+      nextMark.setMinutes(Math.ceil((now.getMinutes() + 0.1) / 5) * 5, 0, 0);
+      const diff = nextMark.getTime() - now.getTime();
+      setTimeLeft(`${Math.floor(diff / 60000)}:${Math.floor((diff % 60000) / 1000).toString().padStart(2, '0')}`);
+    }, 1000);
+
+    // 2. Separate auto-generation polling
+    const autoGenTimer = setInterval(() => {
       if (autoMode && !isGenerating) {
         generateSignals();
       }
-    }, 30000); // Changed to 30s interval for reliability
-    return () => clearInterval(timer);
-  }, [autoMode, generateSignals, isGenerating]);
+    }, pollInterval);
 
-  // Immediate trigger on mode toggle
-  useEffect(() => {
+    // Initial run when enabled
     if (autoMode && !isGenerating) {
       generateSignals();
     }
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(autoGenTimer);
+    };
   }, [autoMode]);
 
   const { data: trades, isLoading: isLoadingTrades } = useQuery<any[]>({

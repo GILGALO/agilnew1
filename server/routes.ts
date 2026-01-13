@@ -94,7 +94,7 @@ export async function registerRoutes(
             3. CONFIDENCE SCORING: Provide a realistic confidence score (90-100%).
             4. ENTRY PRICING: Estimate the current entry price based on recent market context.
             
-            RESPONSE FORMAT:
+            RESPONSE FORMAT (JSON):
             You must respond with a JSON object:
             {
               "action": "CALL" | "PUT",
@@ -188,7 +188,7 @@ export async function registerRoutes(
   });
 
   app.post("/api/signals/generate-all", async (req, res) => {
-    console.log("[Auto Mode] Triggered generate-all");
+    console.log(`[Auto Mode] Start request at: ${new Date().toISOString()}`);
     const settings = await storage.getSettings();
     const session = getCurrentSession();
     
@@ -238,7 +238,7 @@ export async function registerRoutes(
               2. ACCURACY: Use real-time pattern recognition (ICT/SMC) to find the path of least resistance.
               3. NO WAITING: You MUST return "CALL" or "PUT". NEVER return "NO_TRADE".
               
-              RESPONSE FORMAT:
+              RESPONSE FORMAT (JSON):
               {
                 "action": "CALL" | "PUT",
                 "confidence": number,
