@@ -56,8 +56,8 @@ export async function registerRoutes(
     const currency = pair.includes('/') ? pair.split('/')[0] : pair.substring(0, 3);
     
     try {
-      // News block disabled for high-frequency mode unless explicitly blocked
-      if (settings.avoidHighImpactNews && false) { 
+      // Re-enabled news protection based on user preference
+      if (settings.avoidHighImpactNews) { 
         const activeNews = await storage.getNewsEvents(currency);
         const highImpactNews = activeNews?.find(n => n.impact === "High");
         
@@ -212,10 +212,11 @@ export async function registerRoutes(
       const currency = pair.split('/')[0];
       
       try {
-        if (settings.avoidHighImpactNews) {
-          const activeNews = await storage.getNewsEvents(currency);
-          if (activeNews.find(n => n.impact === "High")) continue;
-        }
+      // Re-enabled news protection for high-frequency mode
+      if (settings.avoidHighImpactNews) { 
+        const activeNews = await storage.getNewsEvents(currency);
+        if (activeNews && activeNews.find(n => n.impact === "High")) continue;
+      }
 
         const response = await openai.chat.completions.create({
           model: "gpt-4o",
