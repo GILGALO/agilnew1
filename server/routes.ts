@@ -236,7 +236,7 @@ export async function registerRoutes(
               PROTOCOL:
               1. PREDICTION: You must determine if the next candle is more likely to close higher (CALL) or lower (PUT).
               2. ACCURACY: Use real-time pattern recognition (ICT/SMC) to find the path of least resistance.
-              3. NO WAITING: Even in sideways markets, identify the micro-trend or liquidity draw.
+              3. NO WAITING: You MUST return "CALL" or "PUT". NEVER return "NO_TRADE".
               
               RESPONSE FORMAT:
               {

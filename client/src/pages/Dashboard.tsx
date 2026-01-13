@@ -81,7 +81,7 @@ export default function Dashboard() {
       setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
 
       // High-Frequency Auto-mode: Generate signals every minute without skip logic
-      if (autoMode && s === 0 && !isGenerating) {
+      if (autoMode && !isGenerating) {
         generateSignals();
       }
     }, 1000);
