@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 // Removed incompatible widget import
 import { useSignals } from "@/hooks/use-signals";
 import { Sidebar } from "@/components/Sidebar";
@@ -71,7 +71,6 @@ export default function Dashboard() {
       const seconds = now.getSeconds();
       const minutes = now.getMinutes();
       
-      // Calculate next 5-minute mark
       const nextMark = new Date(now);
       nextMark.setMinutes(Math.ceil((minutes + 0.1) / 5) * 5, 0, 0);
       
@@ -80,13 +79,20 @@ export default function Dashboard() {
       const s = Math.floor((diff % 60000) / 1000);
       setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
 
-      // High-Frequency Auto-mode: Generate signals every minute without skip logic
-      if (autoMode && !isGenerating) {
+      // High-Frequency Auto-mode: Generate/Update signals every 30 seconds for non-stop flow
+      if (autoMode && (s === 0 || s === 30) && !isGenerating) {
         generateSignals();
       }
     }, 1000);
     return () => clearInterval(timer);
   }, [autoMode, generateSignals, isGenerating]);
+
+  // Immediate trigger on mode toggle
+  useEffect(() => {
+    if (autoMode && !isGenerating) {
+      generateSignals();
+    }
+  }, [autoMode]);
 
   const { data: trades, isLoading: isLoadingTrades } = useQuery<any[]>({
     queryKey: ["/api/trades"],

@@ -31,10 +31,7 @@ export function SignalCard({ signal, className }: SignalCardProps) {
     const timer = setInterval(() => {
       const nowTime = new Date().getTime();
       const remaining = endTime.getTime() - nowTime;
-      const startDist = nowTime - startTime.getTime();
       
-      // If we are more than 30 seconds into the signal, the signal is "locked"
-      // This clarifies that the % they see is the one they trade
       if (remaining <= 0) {
         setTimeLeft("0:00");
         clearInterval(timer);

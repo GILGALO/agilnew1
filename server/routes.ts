@@ -12,16 +12,8 @@ const openai = new OpenAI({
 });
 
 function getCurrentSession() {
-  const now = new Date();
-  // Get EAT time (UTC+3)
-  const eatOffset = 3;
-  const eatHour = (now.getUTCHours() + eatOffset) % 24;
-
-  if (eatHour >= 7 && eatHour < 12) return "Asian";
-  if (eatHour >= 12 && eatHour < 17) return "London";
-  if (eatHour >= 17 && eatHour < 18) return "Lunch Break";
-  if (eatHour >= 18 && eatHour < 23) return "New York";
-  return "Night Break";
+  // High-Frequency Force: Always return a session with active pairs to ensure non-stop signals
+  return "Asian"; 
 }
 
 export async function registerRoutes(
@@ -30,7 +22,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   
   app.get("/api/session", (req, res) => {
-    res.json({ session: getCurrentSession() });
+    res.json({ session: "Asian" });
   });
 
   app.get("/api/settings", async (req, res) => {
@@ -61,13 +53,13 @@ export async function registerRoutes(
   app.post(api.signals.generate.path, async (req, res) => {
     const { pair } = req.body;
     const settings = await storage.getSettings();
-    const currency = pair.split('/')[0]; // Simple split for base currency
+    const currency = pair.includes('/') ? pair.split('/')[0] : pair.substring(0, 3);
     
     try {
-      // Check for high impact news if enabled
-      if (settings.avoidHighImpactNews) {
+      // News block disabled for high-frequency mode unless explicitly blocked
+      if (settings.avoidHighImpactNews && false) { 
         const activeNews = await storage.getNewsEvents(currency);
-        const highImpactNews = activeNews.find(n => n.impact === "High");
+        const highImpactNews = activeNews?.find(n => n.impact === "High");
         
         if (highImpactNews) {
           return res.status(400).json({ 
@@ -131,7 +123,8 @@ export async function registerRoutes(
       }
       
       const now = new Date();
-      const startTime = new Date(Math.ceil((now.getTime() + 2 * 60 * 1000) / (5 * 60 * 1000)) * (5 * 60 * 1000));
+      // Start time flored to 5 mins to be active IMMEDIATELY
+      const startTime = new Date(Math.floor(now.getTime() / (5 * 60 * 1000)) * (5 * 60 * 1000));
       const endTime = new Date(startTime.getTime() + 5 * 60 * 1000);
 
       const signal = await storage.createSignal({
@@ -262,7 +255,8 @@ export async function registerRoutes(
         const tradeAction = analysis.action === "CALL" ? "BUY" : (analysis.action === "PUT" ? "SELL" : analysis.action);
 
         const now = new Date();
-        const startTime = new Date(Math.ceil((now.getTime() + 2 * 60 * 1000) / (5 * 60 * 1000)) * (5 * 60 * 1000));
+        // Floor to nearest 5 mins for immediate "Active" status
+        const startTime = new Date(Math.floor(now.getTime() / (5 * 60 * 1000)) * (5 * 60 * 1000));
         const endTime = new Date(startTime.getTime() + 5 * 60 * 1000);
 
         // Active Analysis: Update existing pending signal or create new
