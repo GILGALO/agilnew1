@@ -62,6 +62,7 @@ export async function registerRoutes(
         const highImpactNews = activeNews?.find(n => n.impact === "High");
         
         if (highImpactNews) {
+          console.log(`[News Block] Manual generation blocked for ${currency} due to: ${highImpactNews.title}`);
           return res.status(400).json({ 
             message: `High impact news detected for ${currency}: ${highImpactNews.title}. Trading suspended.`,
             isNewsBlocked: true 
@@ -187,6 +188,7 @@ export async function registerRoutes(
   });
 
   app.post("/api/signals/generate-all", async (req, res) => {
+    console.log("[Auto Mode] Triggered generate-all");
     const settings = await storage.getSettings();
     const session = getCurrentSession();
     
@@ -215,7 +217,10 @@ export async function registerRoutes(
       // Re-enabled news protection for high-frequency mode
       if (settings.avoidHighImpactNews) { 
         const activeNews = await storage.getNewsEvents(currency);
-        if (activeNews && activeNews.find(n => n.impact === "High")) continue;
+        if (activeNews && activeNews.find(n => n.impact === "High")) {
+          console.log(`[News Block] Skipping ${pair} due to high-impact news`);
+          continue;
+        }
       }
 
         const response = await openai.chat.completions.create({

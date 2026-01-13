@@ -79,11 +79,11 @@ export default function Dashboard() {
       const s = Math.floor((diff % 60000) / 1000);
       setTimeLeft(`${m}:${s.toString().padStart(2, '0')}`);
 
-      // High-Frequency Auto-mode: Generate/Update signals every 30 seconds for non-stop flow
-      if (autoMode && (s === 0 || s === 30) && !isGenerating) {
+      // High-Frequency Auto-mode: Continuous polling every 30 seconds
+      if (autoMode && !isGenerating) {
         generateSignals();
       }
-    }, 1000);
+    }, 30000); // Changed to 30s interval for reliability
     return () => clearInterval(timer);
   }, [autoMode, generateSignals, isGenerating]);
 
