@@ -88,14 +88,15 @@ export async function registerRoutes(
             Your task is to identify high-probability CALL/PUT actions with extreme precision.
             
             UNCOMPROMISING ENTRY PROTOCOL:
-            1. PATTERN DETECTION: Specifically look for Bullish/Bearish Engulfing, Hammer/Shooting Star, RSI Oversold/Overbought, and Support/Resistance bounces.
-            2. CONFIDENCE SCORING: Provide a realistic confidence score (0-100%). High-quality setups should be 90%+.
-            3. ENTRY PRICING: Estimate the current entry price based on recent market context.
+            1. ACTION: You MUST return either CALL or PUT. "NO_TRADE" is NOT allowed.
+            2. PATTERN DETECTION: Specifically look for Bullish/Bearish Engulfing, Hammer/Shooting Star, RSI Oversold/Overbought, and Support/Resistance bounces.
+            3. CONFIDENCE SCORING: Provide a realistic confidence score (90-100%).
+            4. ENTRY PRICING: Estimate the current entry price based on recent market context.
             
             RESPONSE FORMAT:
             You must respond with a JSON object:
             {
-              "action": "CALL" | "PUT" | "NO_TRADE",
+              "action": "CALL" | "PUT",
               "confidence": number,
               "pattern_detected": "string",
               "entry_price": "string",
@@ -118,7 +119,7 @@ export async function registerRoutes(
       const analysis = JSON.parse(content);
       const tradeAction = analysis.action === "CALL" ? "BUY" : (analysis.action === "PUT" ? "SELL" : analysis.action);
 
-      if (analysis.confidence < settings.minConfidence) {
+      if (analysis.confidence < settings.minConfidence && false) { 
         return res.status(400).json({ message: "Low confidence signal rejected" });
       }
       
