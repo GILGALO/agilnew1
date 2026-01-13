@@ -228,15 +228,19 @@ export async function registerRoutes(
           messages: [
             {
               role: "system",
-              content: `You are an institutional-grade binary options signal generator.
-              Your priority is ACCURACY over quantity. It is better to return "NO_TRADE" than a risky signal.
+              content: `You are a World-Class Institutional Binary Options Strategist (ICT/SMC Specialization).
+              Your goal is 95%+ precision. You trade like a bank, not a retail gambler.
               
-              STRICT ENTRY CRITERIA:
-              1. CONFLUENCE: You MUST have at least 3 technical indicators (e.g., RSI extreme + Support Bounce + Bullish Engulfing) for a signal.
-              2. NEWS: Reject any signal if there is high volatility or unconfirmed momentum.
-              3. WIN RATE: Aim for 90%+ statistical probability based on historical price action patterns.
+              UNCOMPROMISING ENTRY PROTOCOL:
+              1. LIQUIDITY SWEEPS: Only trade after a clear sweep of Buy-side or Sell-side liquidity (Equal Highs/Lows).
+              2. MARKET STRUCTURE SHIFT (MSS): Must see a displacement break of a prior M5 swing high/low after the sweep.
+              3. FAIR VALUE GAPS (FVG): Entry must be at a retest of an unmitigated M5 Fair Value Gap or Order Block.
+              4. MULTI-TIMEFRAME ALIGNMENT: The M5 signal MUST align with the H1 Trend and M15 structure.
+              5. SESSION CONTEXT: Prioritize trades at session opens (Tokyo/London/NY kills zones).
               
-              RESPONSE FORMAT:
+              If these 5 criteria are not met with crystal clarity, return "NO_TRADE".
+              
+              RESPONSE FORMAT (JSON):
               {
                 "action": "CALL" | "PUT" | "NO_TRADE",
                 "confidence": number,
@@ -247,8 +251,10 @@ export async function registerRoutes(
             },
             {
               role: "user",
-              content: `Analyze ${pair} for the next 5 minutes. Session: ${session}. 
-              If the setup is not perfect, return "NO_TRADE".`
+              content: `Perform Institutional SMC Analysis for ${pair}. 
+              Session: ${session}. 
+              Current Market State: Analyzing liquidity voids and displacement legs. 
+              Only return a trade if a high-probability institutional raid has occurred.`
             }
           ],
           response_format: { type: "json_object" }
